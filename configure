@@ -480,9 +480,9 @@ int main(void) {
 EOF
 if $XCC _clock_gettime.c -o _clock_gettime 2>&3; then
 	echo "yes"
-elif $XCC _clock_gettime.c -lrt -o _clock_gettime 2>&3; then
+elif $XCC _clock_gettime.c -lrt -lpthread -o _clock_gettime 2>&3; then
 	echo "yes (-lrt)"
-	echo "LDADD+=		-lrt" >>$CONFIG_MK
+	echo "LDADD+=		-lrt -lpthread " >>$CONFIG_MK
 else
 	echo "no"
 	echo "libc support for clock_getttime is required - aborting" >&2
