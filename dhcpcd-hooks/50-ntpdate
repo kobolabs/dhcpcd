@@ -1,0 +1,7 @@
+case "${reason}" in
+	BOUND|REBIND|REBOOT|RENEW|TIMEOUT|STATIC)
+		ntpd -q -p pool.ntp.org -S /usr/local/Kobo/ntpd.sh &
+		;;
+	PREINIT|EXPIRE|INFORM|FAIL|IPV4LL|NAK|NOCARRIER|RELEASE|STOP)
+		;;
+esac

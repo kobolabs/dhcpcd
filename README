@@ -2,6 +2,10 @@ dhcpcd - DHCP client daemon
 Copyright (c) 2006-2014 Roy Marples <roy@marples.name>
 
 
+Building
+--------
+CC=arm-linux-gcc ./configure --target=arm-linux --with-hooks=ntpdate
+
 Installation
 ------------
 ./configure; make; make install
