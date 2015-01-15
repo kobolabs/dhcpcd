@@ -46,6 +46,8 @@
 #include <netinet/in.h>
 #include <net/route.h>
 
+#include <syslog.h>
+
 /* Support older kernels */
 #ifndef IFLA_WIRELESS
 # define IFLA_WIRELESS (IFLA_MASTER + 1)
@@ -208,6 +210,23 @@ if_init(struct interface *ifp)
 {
 	char path[sizeof(PROC_PROMOTE) + IF_NAMESIZE];
 	int n;
+
+	char buf[1024];
+	FILE *fp;
+
+	snprintf(path, sizeof(path), "/sys/class/net/%s/address", ifp->name);
+	fp = fopen(path, "r");
+	if (fp == NULL)
+		return errno == ENOENT ? 0 : -1;
+	if (fgets(buf, sizeof(buf), fp) != NULL) {
+		ssize_t len = 0;
+		buf[strlen(buf) - 1 ] = 0;
+		len = hwaddr_aton((uint8_t *) ifp->hwaddr, buf);
+		ifp->hwlen = len;
+		hwaddr_ntoa(ifp->hwaddr, ifp->hwlen, buf, sizeof(buf));
+		syslog(LOG_INFO, "%s: using /sys hwaddr: %s", ifp->name, buf);
+	}
+	fclose(fp);
 
 	/* We enable promote_secondaries so that we can do this
 	 * add 192.168.1.2/24
