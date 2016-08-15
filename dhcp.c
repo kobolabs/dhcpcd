@@ -2895,8 +2895,9 @@ dhcp_dump(struct interface *ifp)
 		goto eexit;
 	state->raw_fd = state->arp_fd = -1;
 	TAILQ_INIT(&state->arp_states);
-	snprintf(state->leasefile, sizeof(state->leasefile),
-	    LEASEFILE, ifp->name, ifp->ssid);
+	state->leasefile = calloc(1, strlen(ifp->ssid) + IF_NAMESIZE + sizeof(LEASEFILE) + 1);
+	snprintf(state->leasefile, strlen(ifp->ssid) + IF_NAMESIZE + sizeof(LEASEFILE) + 1,
+		LEASEFILE, ifp->name, ifp->ssid);
 	state->new = read_lease(ifp);
 	if (state->new == NULL && errno == ENOENT) {
 		strlcpy(state->leasefile, ifp->name, sizeof(state->leasefile));
@@ -2929,6 +2930,7 @@ dhcp_free(struct interface *ifp)
 		free(state->offer);
 		free(state->buffer);
 		free(state->clientid);
+		free(state->leasefile);
 		free(state);
 		ifp->if_data[IF_DATA_DHCP] = NULL;
 	}
@@ -2978,8 +2980,9 @@ dhcp_init(struct interface *ifp)
 	state->state = DHS_INIT;
 	state->reason = "PREINIT";
 	state->nakoff = 0;
-	snprintf(state->leasefile, sizeof(state->leasefile),
-	    LEASEFILE, ifp->name, ifp->ssid);
+	state->leasefile = calloc(1, strlen(ifp->ssid) + IF_NAMESIZE + sizeof(LEASEFILE) + 1);
+	snprintf(state->leasefile, strlen(ifp->ssid) + IF_NAMESIZE + sizeof(LEASEFILE) + 1,
+		LEASEFILE, ifp->name, ifp->ssid);
 
 	ifo = ifp->options;
 	/* We need to drop the leasefile so that dhcp_start
